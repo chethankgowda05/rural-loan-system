@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rural Loan Routing Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .landing-body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,0.5), transparent 16%),
+        radial-gradient(circle at top left, rgba(30, 123, 52, 0.1), transparent 24%),
+        radial-gradient(circle at top right, rgba(46, 117, 182, 0.12), transparent 28%),
+        linear-gradient(180deg, #f3f8f1 0%, #f8fbfd 56%, #edf3f7 100%),
+        url("https://www.transparenttextures.com/patterns/cartographer.png"),
+        url("https://www.transparenttextures.com/patterns/green-dust-and-scratches.png");
+    }
+    .landing-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.93), rgba(247, 251, 255, 0.95)),
+        url("https://www.transparenttextures.com/patterns/xv.png");
+      border: 1px solid rgba(23, 54, 93, 0.08);
+      box-shadow: 0 30px 70px rgba(23, 54, 93, 0.12);
+      padding: 42px;
+    }
+    .landing-frame::before,
+    .landing-frame::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+    }
+    .landing-frame::before {
+      width: 260px;
+      height: 260px;
+      top: -120px;
+      right: -60px;
+      background: rgba(46, 117, 182, 0.12);
+    }
+    .landing-frame::after {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      bottom: -90px;
+      background: rgba(30, 123, 52, 0.12);
+    }
+    .title-card {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 36px;
+      padding: 24px 26px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(23, 54, 93, 0.96) 0%, rgba(31, 98, 128, 0.9) 56%, rgba(30, 123, 52, 0.86) 100%);
+      box-shadow: 0 22px 44px rgba(23, 54, 93, 0.18);
+    }
+    .title-lockup {
+      display: block;
+    }
+    .title-lockup__text h1 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      color: #fff;
+      max-width: 640px;
+    }
+    .title-lockup__text p {
+      margin: 12px 0 0;
+      color: rgba(255,255,255,0.8);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .title-card__art {
+      width: 132px;
+      height: 76px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 22% 32%, rgba(255,255,255,0.85) 0 8px, transparent 9px),
+        linear-gradient(180deg, rgba(255,255,255,0.22) 0 20%, transparent 20% 100%),
+        linear-gradient(140deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .title-card__art::before,
+    .title-card__art::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      border-radius: 999px;
+    }
+    .title-card__art::before {
+      bottom: 16px;
+      height: 12px;
+      background: rgba(223, 244, 229, 0.86);
+      box-shadow: 0 -18px 0 rgba(255,255,255,0.2);
+    }
+    .title-card__art::after {
+      bottom: 34px;
+      height: 18px;
+      border: 3px solid rgba(223, 244, 229, 0.92);
+      border-top: none;
+    }
+    .landing-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      max-width: 760px;
+    }
+    .landing-card {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 210px;
+      padding: 22px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 18px 34px rgba(23, 54, 93, 0.08);
+      border: 1px solid rgba(23, 54, 93, 0.08);
+    }
+    .landing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 42px rgba(23, 54, 93, 0.12);
+    }
+    .landing-card--farmer {
+      background:
+        linear-gradient(180deg, rgba(246, 255, 248, 0.98), rgba(232, 247, 236, 0.98));
+    }
+    .landing-card--agent {
+      background:
+        linear-gradient(180deg, rgba(248, 252, 255, 0.98), rgba(233, 241, 252, 0.98));
+    }
+    .landing-card h2 {
+      font-size: 30px;
+      margin-top: 10px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      color: #17365d;
+    }
+    .landing-card p {
+      margin: 0;
+      font-size: 15px;
+      color: #4a5f71;
+      max-width: 170px;
+    }
+    .landing-card__top {
+      position: relative;
+      z-index: 1;
+    }
+    .landing-card__foot {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #17365d;
+      opacity: 0.72;
+    }
+    .landing-card__shape {
+      position: absolute;
+      right: -20px;
+      bottom: -22px;
+      width: 108px;
+      height: 108px;
+      border-radius: 30px;
+      opacity: 0.13;
+      transform: rotate(12deg);
+    }
+    .landing-card--farmer .landing-card__shape {
+      background: #1e7b34;
+    }
+    .landing-card--agent .landing-card__shape {
+      background: #1b3a6b;
+    }
+    @media (max-width: 700px) {
+      .landing-frame { padding: 24px; border-radius: 28px; }
+      .title-card,
+      .title-lockup { display: block; }
+      .title-card__art { margin-top: 16px; }
+      .title-lockup__text h1 { font-size: 30px; }
+      .landing-grid { grid-template-columns: 1fr; }
+      .landing-card { min-height: 190px; }
+    }
+  </style>
+</head>
+<body class="landing-body">
+  <main class="landing-shell">
+    <section class="landing-frame">
+      <div class="title-card">
+        <div class="title-lockup">
+          <div class="title-lockup__text">
+            <h1>RURAL LOAN ELIGIBILITY CHECKER</h1>
+            <p>DIRECT ENTRY PORTAL</p>
+          </div>
+        </div>
+        <div class="title-card__art"></div>
+      </div>
+
+      <section class="landing-grid">
+        <a class="landing-card landing-card--farmer" href="farmer.html">
+          <div class="landing-card__top">
+            <div class="mini-logo mini-logo--farmer">
+              <svg viewBox="0 0 64 64" aria-hidden="true">
+                <circle cx="32" cy="22" r="10"></circle>
+                <path d="M18 50c2-10 8-15 14-15s12 5 14 15"></path>
+                <path d="M16 18c6-8 12-12 20-12 6 0 11 2 16 6"></path>
+              </svg>
+            </div>
+            <h2>FARMER</h2>
+            <p>Apply for scheme</p>
+          </div>
+          <span class="landing-card__foot">Application Page</span>
+          <span class="landing-card__shape" aria-hidden="true"></span>
+        </a>
+
+        <a class="landing-card landing-card--agent" href="dashboard.html">
+          <div class="landing-card__top">
+            <div class="mini-logo mini-logo--agent">
+              <svg viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M32 8 16 14v14c0 12 7 22 16 28 9-6 16-16 16-28V14L32 8z"></path>
+                <path d="m24 31 6 6 12-14"></path>
+              </svg>
+            </div>
+            <h2>AGENT</h2>
+            <p>Reviewer</p>
+          </div>
+          <span class="landing-card__foot">Review Page</span>
+          <span class="landing-card__shape" aria-hidden="true"></span>
+        </a>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Application - Rural Loan System</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="app-config.js"></script>
+  <style>
+    .farmer-body {
+      background:
+        radial-gradient(circle at top left, rgba(30, 123, 52, 0.16), transparent 22%),
+        radial-gradient(circle at 85% 14%, rgba(27, 58, 107, 0.14), transparent 18%),
+        linear-gradient(180deg, #f2f8f1 0%, #f8fbfd 54%, #eef5f2 100%),
+        url("https://www.transparenttextures.com/patterns/white-wave.png"),
+        url("https://www.transparenttextures.com/patterns/soft-wallpaper.png");
+    }
+
+    .farmer-body .container {
+      max-width: 940px;
+    }
+
+    .farmer-body .header__inner--farmer {
+      border-radius: 32px;
+      box-shadow: 0 26px 54px rgba(23, 54, 93, 0.2);
+      padding: 28px 30px;
+    }
+
+    .farmer-body .section-intro--farmer,
+    .farmer-body #loanPortal,
+    .farmer-body #commonFields,
+    .farmer-body .scheme-fields,
+    .farmer-body #statusSection {
+      border-radius: 26px;
+      box-shadow: 0 20px 38px rgba(23, 54, 93, 0.08);
+    }
+
+    .farmer-body #loanPortal {
+      background:
+        linear-gradient(180deg, rgba(248, 255, 249, 0.98), rgba(241, 250, 244, 0.96)),
+        url("https://www.transparenttextures.com/patterns/connected.png");
+    }
+  </style>
+</head>
+<body class="farmer-body">
+
+<!-- ═══════════════════════════════════════════════════
+     CONFIGURATION — Change these when deploying live
+     ═══════════════════════════════════════════════════ -->
+<script>
+
+  // ════════════════════════════════════════════════════
+// printFarmerLetter — prints direction letter for farmer
+// ════════════════════════════════════════════════════
+function printFarmerLetter(name, phone, scheme, appId,
+                           rate, refNo, date, banks) {
+  const bankRows = banks.map(b => `
+    <tr>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.name}
+      </td>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.type}
+      </td>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.toll_free}
+      </td>
+    </tr>`).join('');
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Direction Letter — ${refNo}</title>
+      <style>
+        body { font-family: Arial; color: #000; padding: 30px; }
+        h2   { color: #1B3A6B; text-align: center; }
+        .box { background: #f5f9ff; border: 1px solid #1B3A6B;
+               padding: 16px; border-radius: 6px; margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th    { background: #1B3A6B; color: white;
+                padding: 8px 10px; text-align: left; }
+        .warn { background: #FFF3CD; padding: 12px;
+                border-left: 3px solid #B8860B;
+                border-radius: 4px; font-size: 13px; }
+        .sig  { display: flex; justify-content: space-between;
+                margin-top: 40px; }
+        .sig div { text-align: center; }
+        .sig .line { border-top: 1px solid #000; width: 180px;
+                     padding-top: 4px; font-size: 12px; }
+        @media print { button { display: none; } }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center; border-bottom:2px solid #1B3A6B;
+                  padding-bottom:16px; margin-bottom:20px;">
+        <h2>DIRECTION LETTER</h2>
+        <p style="color:#555;">
+          Rural Loan Eligibility Verification System
+        </p>
+        <p style="font-size:13px;">
+          Issued by: Rural Loan Verification Agent
+        </p>
+      </div>
+      <div style="display:flex; justify-content:space-between;
+                  margin-bottom:20px;">
+        <div><b>Reference No:</b> ${refNo}</div>
+        <div><b>Date:</b> ${date}</div>
+      </div>
+      <p><b>To,</b><br/>The Branch Manager,<br/>
+         [Concerned Bank Branch]</p>
+      <p><b>Subject: Direction for Loan Application
+         under ${scheme}</b></p>
+      <p style="line-height:1.7;">
+        This certifies that the following applicant has been
+        pre-screened and verified. All required documents have
+        been checked and found <b>complete and in order</b>.
+      </p>
+      <div class="box">
+        <table style="font-size:14px;">
+          <tr><td width="40%"><b>Applicant Name</b></td>
+              <td>: ${name}</td></tr>
+          <tr><td><b>Mobile Number</b></td>
+              <td>: ${phone}</td></tr>
+          <tr><td><b>Loan Scheme</b></td>
+              <td>: ${scheme}</td></tr>
+          <tr><td><b>Indicative Rate</b></td>
+              <td>: ${rate}</td></tr>
+          <tr><td><b>Application ID</b></td>
+              <td>: ${appId}</td></tr>
+          <tr><td><b>Verified Date</b></td>
+              <td>: ${date}</td></tr>
+        </table>
+      </div>
+      <p><b>Recommended Banks:</b></p>
+      <table>
+        <thead>
+          <tr>
+            <th>Bank Name</th>
+            <th>Type</th>
+            <th>Toll Free</th>
+          </tr>
+        </thead>
+        <tbody>${bankRows}</tbody>
+      </table>
+      <div class="warn" style="margin-top:16px;">
+        <b>Instructions:</b>
+        <ol style="margin:8px 0 0 16px; line-height:1.8;">
+          <li>Carry this Direction Letter to the bank</li>
+          <li>Carry all original documents for verification</li>
+          <li>Visit bank during working hours (10 AM - 4 PM)</li>
+          <li>Quote Reference No: <b>${refNo}</b> at the bank</li>
+        </ol>
+      </div>
+      <p style="font-size:11px; color:#777; margin-top:16px;">
+        <b>Disclaimer:</b> This letter is for pre-screening only.
+        Final loan sanction is subject to the bank's verification
+        and applicable government scheme guidelines.
+      </p>
+      <div class="sig">
+        <div>
+          <div class="line">Applicant Signature</div>
+        </div>
+        <div>
+          <div class="line">
+            Verification Agent Seal & Signature
+          </div>
+        </div>
+      </div>
+      <br/>
+      <button onclick="window.print()"
+        style="padding:10px 20px; background:#1B3A6B;
+               color:white; border:none; border-radius:6px;
+               cursor:pointer; font-size:14px;">
+        🖨️ Print This Letter
+      </button>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// ════════════════════════════════════════════════════
+// printFarmerDirectionLetter
+// Opens printable direction letter in new window
+// ════════════════════════════════════════════════════
+function printFarmerDirectionLetter() {
+  const d = window._letterData;
+  if (!d) {
+    alert('Letter data not available. Please check status again.');
+    return;
+  }
+
+  const bankRows = d.banks.map(b => `
+    <tr>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.name}
+      </td>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.type}
+      </td>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.toll_free}
+      </td>
+      <td style="padding:6px 10px; border:1px solid #ccc;">
+        ${b.website}
+      </td>
+    </tr>`).join('');
+
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Direction Letter — ${d.refNo}</title>
+      <style>
+        body  { font-family:Arial; color:#000; padding:30px;
+                max-width:750px; margin:0 auto; }
+        h2    { color:#1B3A6B; text-align:center; margin:0; }
+        .box  { background:#f5f9ff; border:1px solid #1B3A6B;
+                padding:16px; border-radius:6px; margin:16px 0; }
+        table { width:100%; border-collapse:collapse; }
+        th    { background:#1B3A6B; color:white;
+                padding:8px 10px; text-align:left; }
+        td    { padding:6px 10px; }
+        .warn { background:#FFF3CD; padding:12px;
+                border-left:3px solid #B8860B;
+                border-radius:4px; font-size:13px; }
+        .disc { font-size:11px; color:#777; line-height:1.6; }
+        .sig  { display:flex; justify-content:space-between;
+                margin-top:40px; }
+        .line { border-top:1px solid #000; width:180px;
+                padding-top:4px; font-size:12px;
+                text-align:center; }
+        .print-btn {
+          display:block; margin:20px auto 0;
+          padding:12px 30px; background:#1B3A6B;
+          color:white; border:none; border-radius:6px;
+          font-size:15px; cursor:pointer;
+        }
+        @media print {
+          .print-btn { display:none !important; }
+          body { padding:10px; }
+        }
+      </style>
+    </head>
+    <body>
+      <!-- Header -->
+      <div style="text-align:center; border-bottom:2px solid #1B3A6B;
+                  padding-bottom:16px; margin-bottom:20px;">
+        <h2>DIRECTION LETTER</h2>
+        <p style="color:#555; margin:4px 0;">
+          Rural Loan Eligibility Verification System
+        </p>
+        <p style="font-size:13px; margin:4px 0;">
+          Issued by: Rural Loan Verification Agent
+        </p>
+      </div>
+
+      <!-- Ref and Date -->
+      <div style="display:flex; justify-content:space-between;
+                  margin-bottom:20px; font-size:14px;">
+        <div><b>Reference No:</b> ${d.refNo}</div>
+        <div><b>Date:</b> ${d.date}</div>
+      </div>
+
+      <!-- To -->
+      <p style="margin-bottom:16px; font-size:14px;">
+        <b>To,</b><br/>
+        The Branch Manager,<br/>
+        [Concerned Bank Branch]
+      </p>
+
+      <!-- Subject -->
+      <p style="margin-bottom:16px; font-size:14px;">
+        <b>Subject: Direction for Loan Application
+        under ${d.scheme}</b>
+      </p>
+
+      <!-- Body -->
+      <p style="line-height:1.8; font-size:14px;
+                margin-bottom:16px;">
+        This is to certify that the following applicant has been
+        pre-screened and verified by the Rural Loan Verification
+        Agent. All required documents have been checked and found
+        to be <b>complete and in order</b>.
+        The applicant is hereby directed to your bank for
+        formal loan application under the above scheme.
+      </p>
+
+      <!-- Applicant Details -->
+      <div class="box">
+        <table style="font-size:14px;">
+          <tr>
+            <td width="40%" style="padding:5px 0;">
+              <b>Applicant Name</b>
+            </td>
+            <td>: ${d.name}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;">
+              <b>Mobile Number</b>
+            </td>
+            <td>: ${d.phone}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;">
+              <b>Loan Scheme</b>
+            </td>
+            <td>: ${d.scheme}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;">
+              <b>Indicative Rate</b>
+            </td>
+            <td>: ${d.rate}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;">
+              <b>Application ID</b>
+            </td>
+            <td>: ${d.appId}</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 0;">
+              <b>Verification Date</b>
+            </td>
+            <td>: ${d.date}</td>
+          </tr>
+          ${d.remarks
+            ? `<tr>
+                 <td style="padding:5px 0;">
+                   <b>Agent Remarks</b>
+                 </td>
+                 <td>: ${d.remarks}</td>
+               </tr>`
+            : ''}
+        </table>
+      </div>
+
+      <!-- Recommended Banks -->
+      ${d.banks.length > 0 ? `
+        <p style="margin-bottom:8px; font-size:14px;">
+          <b>Recommended Banks for ${d.scheme}:</b>
+        </p>
+        <table style="margin-bottom:16px; font-size:13px;">
+          <thead>
+            <tr>
+              <th>Bank Name</th>
+              <th>Type</th>
+              <th>Toll Free</th>
+              <th>Website</th>
+            </tr>
+          </thead>
+          <tbody>${bankRows}</tbody>
+        </table>` : ''}
+
+      <!-- Instructions -->
+      <div class="warn" style="margin-bottom:20px;">
+        <b>Instructions to Applicant:</b>
+        <ol style="margin:8px 0 0 16px; line-height:1.8;">
+          <li>Carry this Direction Letter to the bank</li>
+          <li>Carry ALL original documents for bank verification</li>
+          <li>Visit the bank during working hours (10 AM - 4 PM)</li>
+          <li>Quote Reference No: <b>${d.refNo}</b> at the counter</li>
+          <li>Final loan approval is subject to bank's assessment</li>
+        </ol>
+      </div>
+
+      <!-- Disclaimer -->
+      <p class="disc">
+        <b>Disclaimer:</b> This Direction Letter is issued based on
+        pre-screening of submitted documents and eligibility criteria.
+        It does not guarantee loan approval. Final sanction is subject
+        to the lending institution's verification, credit assessment,
+        and applicable government scheme guidelines.
+      </p>
+
+      <!-- Signatures -->
+      <div class="sig">
+        <div class="line">Applicant Signature</div>
+        <div class="line">Verification Agent<br/>Seal & Signature</div>
+      </div>
+
+      <!-- Print Button -->
+      <button class="print-btn" onclick="window.print()">
+        🖨️ Print This Letter
+      </button>
+
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+  const CLOUDINARY_CLOUD_NAME   = 'dfsabg8ve';
+  const CLOUDINARY_UPLOAD_PRESET = 'rural_loan_docs';
+
+  // For local testing:
+  const IS_LOCAL_ENV = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const API_URL = IS_LOCAL_ENV
+    ? 'http://localhost:5001/rural-loan-system/us-central1/submit_loan'
+    : '/api/submit_loan';
+  const STATUS_URL = IS_LOCAL_ENV
+    ? 'http://localhost:5001/rural-loan-system/us-central1/check_status'
+    : '/api/check_status';
+
+  // After deploying — replace with live URLs:
+  // const API_URL    = 'https://us-central1-rural-loan-system.cloudfunctions.net/submit_loan';
+  // const STATUS_URL = 'https://us-central1-rural-loan-system.cloudfunctions.net/check_status';
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════ -->
+<div class="header header--compact">
+  <div class="header__inner header__inner--farmer">
+    <div class="header-badge header-badge--farmer">
+      <span class="header-badge__icon"></span>
+      <span>Farmer</span>
+    </div>
+  <h1>🏦 Rural Loan Eligibility System</h1>
+  <p>Fill the form, upload documents, and track status.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card section-intro section-intro--farmer">
+    <div>
+      <div class="panel-logo panel-logo--farmer">
+        <span class="panel-logo__glyph"></span>
+      </div>
+      <p class="card-tag">Farmer Workflow</p>
+      <h3>Application Details</h3>
+      <p>Select scheme, enter details, upload documents.</p>
+    </div>
+    <a class="inline-link" href="index.html">Back to home</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCHEME SELECTOR
+       ═══════════════════════════════════════════════ -->
+  <div id="loanPortal" class="card">
+    <div class="form-group">
+      <label for="loanScheme">Select Loan Scheme</label>
+      <select id="loanScheme" onchange="onSchemeChange()">
+        <option value="">-- Select a Scheme --</option>
+        <option value="Kisan Credit Card">Kisan Credit Card</option>
+        <option value="PM Mudra Loan">PM Mudra Loan</option>
+        <option value="Rural Housing Loan">Rural Housing Loan (PMAY-G)</option>
+        <option value="NABARD Farm Loan">NABARD Farm Loan</option>
+        <option value="PM Fasal Bima">PM Fasal Bima (Crop Insurance)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       DYNAMIC FORM SECTION
+       ═══════════════════════════════════════════════ -->
+
+  <!-- Common fields — always shown when scheme selected -->
+  <div id="commonFields" class="card" style="display:none;">
+    <h3>Applicant Details</h3>
+    <div class="form-group">
+      <label for="applicant_name">Full Name (as per Aadhaar)</label>
+      <input type="text" id="applicant_name" placeholder="Enter full name" />
+    </div>
+    <div class="form-group">
+      <label for="phone">Mobile Number</label>
+      <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" />
+    </div>
+    <div class="form-group">
+      <label for="farmerState">Select State</label>
+      <select id="farmerState">
+        <option value="">-- Select your state --</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KCC Fields -->
+  <div id="fields_kcc" class="card scheme-fields" style="display:none;">
+    <h3>Kisan Credit Card — Details</h3>
+    <div class="form-group">
+      <label for="age_kcc">Age (years)</label>
+      <input type="number" id="age_kcc" placeholder="Enter age" min="18" max="75" />
+    </div>
+    <div class="form-group">
+      <label for="farmer_type_kcc">Farmer Type</label>
+      <select id="farmer_type_kcc" onchange="updateDocVisibility()">
+        <option value="">-- Select --</option>
+        <option value="owner">Land Owner</option>
+        <option value="tenant">Tenant Farmer</option>
+        <option value="sharecropper">Sharecropper</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Any Previous Loan Default?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="default_kcc" value="false" /> No</label>
+        <label><input type="radio" name="default_kcc" value="true" /> Yes</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mudra Fields -->
+  <div id="fields_mudra" class="card scheme-fields" style="display:none;">
+    <h3>PM Mudra Loan — Details</h3>
+    <div class="form-group">
+      <label for="business_type">Business Type</label>
+      <select id="business_type">
+        <option value="">-- Select --</option>
+        <option value="non-farm">Non-Farm Business</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="mudra_stage">Mudra Stage</label>
+      <select id="mudra_stage">
+        <option value="">-- Select --</option>
+        <option value="Shishu">Shishu (Up to Rs.50,000)</option>
+        <option value="Kishore">Kishore (Up to Rs.5,00,000)</option>
+        <option value="Tarun">Tarun (Up to Rs.10,00,000)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Any Previous Loan Default?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="default_mudra" value="false" /> No</label>
+        <label><input type="radio" name="default_mudra" value="true" /> Yes</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- PMAY-G Fields -->
+  <div id="fields_pmay" class="card scheme-fields" style="display:none;">
+    <h3>Rural Housing Loan (PMAY-G) — Details</h3>
+    <div class="form-group">
+      <label>Are you listed in SECC 2011 Beneficiary List?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="secc_listed" value="true" /> Yes</label>
+        <label><input type="radio" name="secc_listed" value="false" /> No</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Are you a previous PMAY Beneficiary?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="previous_pmay" value="true" /> Yes</label>
+        <label><input type="radio" name="previous_pmay" value="false" /> No</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="house_condition">Current House Condition</label>
+      <select id="house_condition">
+        <option value="">-- Select --</option>
+        <option value="none">No House / Homeless</option>
+        <option value="kutcha">Kutcha House</option>
+        <option value="pucca">Pucca House</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Any Previous Loan Default?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="default_pmay" value="false" /> No</label>
+        <label><input type="radio" name="default_pmay" value="true" /> Yes</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- NABARD Fields -->
+  <div id="fields_nabard" class="card scheme-fields" style="display:none;">
+    <h3>NABARD Farm Loan — Details</h3>
+    <div class="form-group">
+      <label for="farmer_type_nabard">Farmer Type</label>
+      <select id="farmer_type_nabard" onchange="updateDocVisibility()">
+        <option value="">-- Select --</option>
+        <option value="owner">Land Owner</option>
+        <option value="tenant">Tenant Farmer</option>
+        <option value="sharecropper">Sharecropper</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="land_acres_nabard">Land Size (in Acres)</label>
+      <input type="number" id="land_acres_nabard"
+             placeholder="e.g. 2.5" min="0.1" step="0.1" />
+    </div>
+    <div class="form-group">
+      <label for="crop_name_nabard">Crop Being Cultivated</label>
+      <input type="text" id="crop_name_nabard" placeholder="e.g. Rice, Wheat" />
+    </div>
+    <div class="form-group">
+      <label>Do you have an account with RRB or Cooperative Bank?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="rrb_nabard" value="true" /> Yes</label>
+        <label><input type="radio" name="rrb_nabard" value="false" /> No</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Any Previous Loan Default?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="default_nabard" value="false" /> No</label>
+        <label><input type="radio" name="default_nabard" value="true" /> Yes</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fasal Bima Fields -->
+  <div id="fields_fasal" class="card scheme-fields" style="display:none;">
+    <h3>PM Fasal Bima — Details</h3>
+    <div class="form-group">
+      <label for="farmer_type_fasal">Farmer Type</label>
+      <select id="farmer_type_fasal" onchange="updateDocVisibility()">
+        <option value="">-- Select --</option>
+        <option value="owner">Land Owner</option>
+        <option value="tenant">Tenant Farmer</option>
+        <option value="sharecropper">Sharecropper</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="land_acres_fasal">Land Size (in Acres)</label>
+      <input type="number" id="land_acres_fasal"
+             placeholder="e.g. 1.5" min="0.1" step="0.1" />
+    </div>
+    <div class="form-group">
+      <label for="crop_name_fasal">Crop Name</label>
+      <input type="text" id="crop_name_fasal" placeholder="e.g. Cotton, Sugarcane" />
+    </div>
+    <div class="form-group">
+      <label for="crop_season">Crop Season</label>
+      <select id="crop_season">
+        <option value="">-- Select --</option>
+        <option value="Kharif">Kharif (June - November)</option>
+        <option value="Rabi">Rabi (November - April)</option>
+        <option value="Zaid">Zaid (March - June)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Enrolled before season cutoff date?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="cutoff_fasal" value="true" /> Yes</label>
+        <label><input type="radio" name="cutoff_fasal" value="false" /> No</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       DOCUMENT UPLOAD SECTION
+       ═══════════════════════════════════════════════ -->
+  <div id="docSection" class="card" style="display:none;">
+    <h3>📄 Upload Required Documents</h3>
+    <p class="doc-note">All documents must be uploaded before submitting.</p>
+    <div id="docFields"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SUBMIT BUTTON
+       ═══════════════════════════════════════════════ -->
+  <div id="submitSection" style="display:none;">
+    <div id="docError" class="error-msg" style="display:none;">
+      ⚠ Please upload all required documents before submitting.
+    </div>
+    <button id="submitBtn" class="btn-primary" onclick="submitForm()" disabled>
+      Check Eligibility
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       LOADING SPINNER
+       ═══════════════════════════════════════════════ -->
+  <div id="spinner" style="display:none;">
+    <div class="spinner"></div>
+    <p style="text-align:center; color:#555;">Checking eligibility...</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       RESULT SECTION
+       ═══════════════════════════════════════════════ -->
+  <div id="resultSection" style="display:none;"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       STATUS CHECK SECTION
+       ═══════════════════════════════════════════════ -->
+  <div id="statusSection" class="card" style="margin-top:32px;">
+    <h3>🔍 Check Application Status</h3>
+    <p style="color:#555; font-size:14px;">
+      Enter your mobile number to check all your applications.
+    </p>
+    <div class="form-group">
+      <label for="statusPhone">Mobile Number</label>
+      <input type="tel" id="statusPhone"
+             placeholder="Enter 10-digit mobile number" maxlength="10" />
+    </div>
+    <button class="btn-primary" onclick="checkStatus()"
+            style="margin-top:8px;">
+      Check Status
+    </button>
+    <div id="statusSpinner" style="display:none;">
+      <div class="spinner"></div>
+    </div>
+    <div id="statusResult" style="margin-top:16px;"></div>
+  </div>
+
+</div><!-- end container -->
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════ -->
+<script>
+
+// ── Document upload tracking ──────────────────────────
+let documentUrls    = {};   // stores uploaded doc URLs
+let requiredDocs    = [];   // list of required doc field_ids
+let uploadedDocs    = {};   // tracks which docs are uploaded
+
+// ── Scheme to DOM section mapping ─────────────────────
+const SCHEME_FIELDS = {
+  'Kisan Credit Card':  'fields_kcc',
+  'PM Mudra Loan':      'fields_mudra',
+  'Rural Housing Loan': 'fields_pmay',
+  'NABARD Farm Loan':   'fields_nabard',
+  'PM Fasal Bima':      'fields_fasal',
+};
+
+// ── Document definitions per scheme ───────────────────
+const SCHEME_DOCS = {
+  'Kisan Credit Card': [
+    { field_id: 'aadhaar',           label: 'Aadhaar Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'land_records',      label: 'Land Records (Patta/Khata)',
+      accept: 'application/pdf,image/*', for_types: ['owner'] },
+    { field_id: 'tenancy_agreement', label: 'Tenancy Agreement / Lease Deed',
+      accept: 'application/pdf,image/*', for_types: ['tenant','sharecropper'] },
+  ],
+  'PM Mudra Loan': [
+    { field_id: 'aadhaar',        label: 'Aadhaar Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'pan_card',       label: 'PAN Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'business_proof', label: 'Business Proof (Udyam/Shop License/GST)',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'address_proof',  label: 'Business Address Proof',
+      accept: 'application/pdf,image/*', always: true },
+  ],
+  'Rural Housing Loan': [
+    { field_id: 'aadhaar',      label: 'Aadhaar Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'secc_letter',  label: 'SECC 2011 Acknowledgement Letter',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'house_photo',  label: 'Current House Photo',
+      accept: 'image/*', always: true },
+    { field_id: 'ration_card',  label: 'Ration Card',
+      accept: 'application/pdf,image/*', always: true },
+  ],
+  'NABARD Farm Loan': [
+    { field_id: 'aadhaar',           label: 'Aadhaar Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'land_records',      label: 'Land Records (Patta/Khata)',
+      accept: 'application/pdf,image/*', for_types: ['owner'] },
+    { field_id: 'tenancy_agreement', label: 'Tenancy Agreement',
+      accept: 'application/pdf,image/*', for_types: ['tenant','sharecropper'] },
+    { field_id: 'crop_certificate',  label: 'Crop Sowing Certificate',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'bank_passbook',     label: 'Bank Passbook (RRB/Cooperative)',
+      accept: 'application/pdf,image/*', always: true },
+  ],
+  'PM Fasal Bima': [
+    { field_id: 'aadhaar',           label: 'Aadhaar Card',
+      accept: 'application/pdf,image/*', always: true },
+    { field_id: 'land_records',      label: 'Land Records (Patta/Khata)',
+      accept: 'application/pdf,image/*', for_types: ['owner'] },
+    { field_id: 'tenancy_agreement', label: 'Tenancy Agreement',
+      accept: 'application/pdf,image/*', for_types: ['tenant','sharecropper'] },
+    { field_id: 'crop_certificate',  label: 'Crop Sowing Certificate',
+      accept: 'application/pdf,image/*', always: true },
+  ],
+};
+
+// ════════════════════════════════════════════════════
+// onSchemeChange — runs when farmer selects a scheme
+// ════════════════════════════════════════════════════
+function onSchemeChange() {
+  const scheme = document.getElementById('loanScheme').value;
+
+  // Hide all scheme fields
+  document.querySelectorAll('.scheme-fields').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // Reset uploads
+  documentUrls = {};
+  uploadedDocs = {};
+  requiredDocs = [];
+  document.getElementById('docFields').innerHTML = '';
+  document.getElementById('docSection').style.display   = 'none';
+  document.getElementById('submitSection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('resultSection').innerHTML    = '';
+
+  if (!scheme) {
+    document.getElementById('commonFields').style.display = 'none';
+    return;
+  }
+
+  // Show common fields and scheme-specific fields
+  document.getElementById('commonFields').style.display = 'block';
+  const fieldId = SCHEME_FIELDS[scheme];
+  if (fieldId) {
+    document.getElementById(fieldId).style.display = 'block';
+  }
+
+  // Build document upload section
+  buildDocSection(scheme);
+  document.getElementById('submitSection').style.display = 'block';
+}
+
+// ════════════════════════════════════════════════════
+// buildDocSection — builds document upload fields
+// ════════════════════════════════════════════════════
+function buildDocSection(scheme) {
+  const docs      = SCHEME_DOCS[scheme] || [];
+  const container = document.getElementById('docFields');
+  container.innerHTML = '';
+  requiredDocs = [];
+
+  docs.forEach(doc => {
+    // Always required docs — show immediately
+    if (doc.always) {
+      requiredDocs.push(doc.field_id);
+      container.appendChild(createUploadField(doc));
+    }
+    // Conditional docs — shown based on farmer type
+    else if (doc.for_types) {
+      const el = createUploadField(doc);
+      el.setAttribute('data-for-types', doc.for_types.join(','));
+      el.style.display = 'none';  // hidden until farmer type selected
+      container.appendChild(el);
+    }
+  });
+
+  document.getElementById('docSection').style.display = 'block';
+  updateDocVisibility();
+  checkAllUploaded();
+}
+
+// ════════════════════════════════════════════════════
+// createUploadField — creates one document upload row
+// ════════════════════════════════════════════════════
+function createUploadField(doc) {
+  const div = document.createElement('div');
+  div.className = 'upload-area';
+  div.id        = `upload_wrapper_${doc.field_id}`;
+  div.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <label style="font-weight:bold; color:#1B3A6B;">
+        ${doc.label}
+      </label>
+      <span id="badge_${doc.field_id}" class="badge-pending">
+        Not Uploaded
+      </span>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+      <input type="file" id="file_${doc.field_id}"
+             accept="${doc.accept}"
+             style="flex:1; font-size:13px;" />
+      <button class="btn-upload"
+              onclick="uploadDoc('${doc.field_id}', '${doc.label}')">
+        Upload
+      </button>
+    </div>
+    <div id="uploading_${doc.field_id}"
+         style="display:none; color:#2E75B6; font-size:13px; margin-top:4px;">
+      ⏳ Uploading...
+    </div>
+  `;
+  return div;
+}
+
+// ════════════════════════════════════════════════════
+// updateDocVisibility — shows conditional docs
+// based on farmer type selection
+// ════════════════════════════════════════════════════
+function updateDocVisibility() {
+  const scheme = document.getElementById('loanScheme').value;
+  let farmerType = '';
+
+  if (scheme === 'Kisan Credit Card') {
+    farmerType = document.getElementById('farmer_type_kcc').value;
+  } else if (scheme === 'NABARD Farm Loan') {
+    farmerType = document.getElementById('farmer_type_nabard').value;
+  } else if (scheme === 'PM Fasal Bima') {
+    farmerType = document.getElementById('farmer_type_fasal').value;
+  }
+
+  if (!farmerType) return;
+
+  const docs = SCHEME_DOCS[scheme] || [];
+  requiredDocs = [];
+
+  docs.forEach(doc => {
+    const wrapper = document.getElementById(`upload_wrapper_${doc.field_id}`);
+    if (!wrapper) return;
+
+    if (doc.always) {
+      wrapper.style.display = 'block';
+      requiredDocs.push(doc.field_id);
+    } else if (doc.for_types && doc.for_types.includes(farmerType)) {
+      wrapper.style.display = 'block';
+      requiredDocs.push(doc.field_id);
+    } else if (doc.for_types) {
+      wrapper.style.display = 'none';
+      // Remove from uploaded if hidden
+      delete uploadedDocs[doc.field_id];
+      delete documentUrls[doc.field_id];
+    }
+  });
+
+  checkAllUploaded();
+}
+
+// ════════════════════════════════════════════════════
+// uploadDoc — uploads file to Cloudinary
+// ════════════════════════════════════════════════════
+async function uploadDoc(fieldId, label) {
+  const fileInput = document.getElementById(`file_${fieldId}`);
+  const file      = fileInput.files[0];
+
+  if (!file) {
+    alert(`Please select a file for: ${label}`);
+    return;
+  }
+
+  // Check file size — max 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    alert('File size must be less than 5MB');
+    return;
+  }
+
+  // Show uploading indicator
+  document.getElementById(`uploading_${fieldId}`).style.display = 'block';
+  document.getElementById(`badge_${fieldId}`).className = 'badge-pending';
+  document.getElementById(`badge_${fieldId}`).textContent = 'Uploading...';
+
+  try {
+    const formData = new FormData();
+    formData.append('file',           file);
+    formData.append('upload_preset',  CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder',         'rural-loan-system');
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`,
+      { method: 'POST', body: formData }
+    );
+
+    if (!response.ok) throw new Error('Upload failed');
+
+    const data = await response.json();
+
+    // Store secure URL
+    documentUrls[fieldId] = data.secure_url;
+    uploadedDocs[fieldId] = true;
+
+    // Update badge to uploaded
+    document.getElementById(`badge_${fieldId}`).className   = 'badge-uploaded';
+    document.getElementById(`badge_${fieldId}`).textContent = '✓ Uploaded';
+    document.getElementById(`uploading_${fieldId}`).style.display = 'none';
+
+    checkAllUploaded();
+
+  } catch (error) {
+    document.getElementById(`badge_${fieldId}`).className   = 'badge-pending';
+    document.getElementById(`badge_${fieldId}`).textContent = 'Upload Failed';
+    document.getElementById(`uploading_${fieldId}`).style.display = 'none';
+    alert(`Failed to upload ${label}. Please try again.`);
+  }
+}
+
+// ════════════════════════════════════════════════════
+// checkAllUploaded — enables submit button
+// only when all required docs are uploaded
+// ════════════════════════════════════════════════════
+function checkAllUploaded() {
+  const allUploaded = requiredDocs.every(id => uploadedDocs[id] === true);
+  document.getElementById('submitBtn').disabled = !allUploaded;
+  document.getElementById('docError').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════
+// collectFormData — gathers all visible form fields
+// ════════════════════════════════════════════════════
+function collectFormData() {
+  const scheme = document.getElementById('loanScheme').value;
+  const data   = {
+    loan_scheme:    scheme,
+    applicant_name: document.getElementById('applicant_name').value.trim(),
+    phone:          document.getElementById('phone').value.trim(),
+    state:          document.getElementById('farmerState').value,
+    document_urls:  documentUrls,
+  };
+
+  if (scheme === 'Kisan Credit Card') {
+    data.age            = parseInt(document.getElementById('age_kcc').value);
+    data.farmer_type    = document.getElementById('farmer_type_kcc').value;
+    const def           = document.querySelector('input[name="default_kcc"]:checked');
+    data.previous_default = def ? def.value === 'true' : null;
+  }
+  else if (scheme === 'PM Mudra Loan') {
+    data.business_type    = document.getElementById('business_type').value;
+    data.mudra_stage      = document.getElementById('mudra_stage').value;
+    const def             = document.querySelector('input[name="default_mudra"]:checked');
+    data.previous_default = def ? def.value === 'true' : null;
+  }
+  else if (scheme === 'Rural Housing Loan') {
+    const secc            = document.querySelector('input[name="secc_listed"]:checked');
+    const pmay            = document.querySelector('input[name="previous_pmay"]:checked');
+    const def             = document.querySelector('input[name="default_pmay"]:checked');
+    data.secc_listed      = secc ? secc.value === 'true' : null;
+    data.previous_pmay    = pmay ? pmay.value === 'true' : null;
+    data.house_condition  = document.getElementById('house_condition').value;
+    data.previous_default = def  ? def.value  === 'true' : null;
+  }
+  else if (scheme === 'NABARD Farm Loan') {
+    data.farmer_type      = document.getElementById('farmer_type_nabard').value;
+    data.land_acres       = parseFloat(document.getElementById('land_acres_nabard').value);
+    data.crop_name        = document.getElementById('crop_name_nabard').value.trim();
+    const rrb             = document.querySelector('input[name="rrb_nabard"]:checked');
+    const def             = document.querySelector('input[name="default_nabard"]:checked');
+    data.bank_account_rrb = rrb ? rrb.value === 'true' : null;
+    data.previous_default = def ? def.value  === 'true' : null;
+  }
+  else if (scheme === 'PM Fasal Bima') {
+    data.farmer_type           = document.getElementById('farmer_type_fasal').value;
+    data.land_acres            = parseFloat(document.getElementById('land_acres_fasal').value);
+    data.crop_name             = document.getElementById('crop_name_fasal').value.trim();
+    data.crop_season           = document.getElementById('crop_season').value;
+    const cutoff               = document.querySelector('input[name="cutoff_fasal"]:checked');
+    data.enrolled_before_cutoff = cutoff ? cutoff.value === 'true' : null;
+  }
+
+  return data;
+}
+
+// ════════════════════════════════════════════════════
+// submitForm — submits form to Cloud Function
+// ════════════════════════════════════════════════════
+async function submitForm() {
+  // Check documents
+  const allUploaded = requiredDocs.every(id => uploadedDocs[id] === true);
+  if (!allUploaded) {
+    document.getElementById('docError').style.display = 'block';
+    return;
+  }
+
+  const data = collectFormData();
+  if (!data.state) {
+    showError('Please select the state that should receive this application.');
+    return;
+  }
+
+  // Show spinner
+  document.getElementById('spinner').style.display       = 'block';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('submitBtn').disabled          = true;
+
+  try {
+    const response = await fetch(API_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('submitBtn').disabled    = false;
+
+    if (!response.ok) {
+      if (result.error === 'duplicate') {
+        showError(result.message ||
+          'Application already submitted for this scheme.');
+        // Scroll to status check
+        document.querySelector('.card:last-of-type')
+          .scrollIntoView({ behavior: 'smooth' });
+      } else {
+        showError(result.errors || result.error ||
+          'Something went wrong');
+      }
+      return;
+    }
+
+    showResult(result);
+
+  } catch (error) {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('submitBtn').disabled    = false;
+    showError('Network error. Please check your connection and try again.');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// showResult — displays eligibility result
+// ════════════════════════════════════════════════════
+function showResult(result) {
+  const section = document.getElementById('resultSection');
+  section.style.display = 'block';
+
+  if (result.eligible) {
+    let rateInfo = '';
+    if (result.interest_rate) {
+      rateInfo = `<p><b>Indicative Rate:</b> ${result.interest_rate}% per annum</p>`;
+    } else if (result.premium_rate) {
+      rateInfo = `<p><b>Premium Rate:</b> ${result.premium_rate}% of sum insured</p>`;
+    }
+    if (result.loan_limit) {
+      rateInfo += `<p><b>Loan Limit:</b> Rs.${result.loan_limit}</p>`;
+    }
+
+    section.innerHTML = `
+      <div class="result-approved">
+        <h3>✅ Submitted — Verification Pending</h3>
+        ${rateInfo}
+        <p style="margin-top:10px; font-size:14px; color:#1E7B34;">
+          Your application has been submitted successfully.
+          A verification agent will review your documents shortly.
+        </p>
+        <p style="margin-top:8px; font-size:14px;">
+          📱 Check your application status anytime using your
+          mobile number in the <b>Check Application Status</b>
+          section below.
+        </p>
+        <p style="font-size:13px; color:#555; margin-top:8px;">
+          Application ID: ${result.applicationId}
+        </p>
+      </div>
+      <div class="card" style="margin-top:12px;
+                               background:#FFF3CD;
+                               border-left:4px solid #B8860B;">
+        <p style="color:#B8860B; font-size:14px;">
+          <b>ℹ What happens next?</b><br/>
+          1. Agent verifies your uploaded documents<br/>
+          2. If approved — you will receive a Direction Letter<br/>
+          3. Take the letter to your nearest bank to apply<br/>
+          4. Bank list will be shown once your documents are verified
+        </p>
+      </div>
+    `;
+  } else {
+    section.innerHTML = `
+      <div class="result-rejected">
+        <h3>❌ Not Eligible</h3>
+        <p><b>Reason:</b> ${result.reason}</p>
+        <p style="font-size:13px; color:#555;">
+          Application ID: ${result.applicationId}
+        </p>
+      </div>
+    `;
+  }
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ════════════════════════════════════════════════════
+// buildBanksTable — builds bank details table
+// ════════════════════════════════════════════════════
+function buildBanksTable(banks) {
+  if (!banks || banks.length === 0) return '';
+  let rows = banks.map(b => `
+    <tr>
+      <td>${b.name}</td>
+      <td>${b.type}</td>
+      <td>${b.toll_free}</td>
+      <td><a href="${b.website}" target="_blank">Visit</a></td>
+    </tr>
+  `).join('');
+  return `
+    <div class="card" style="margin-top:16px;">
+      <h4>🏦 Banks Supporting This Scheme</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Bank Name</th>
+            <th>Type</th>
+            <th>Toll Free</th>
+            <th>Website</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════
+// showError — displays validation errors
+// ════════════════════════════════════════════════════
+function showError(errors) {
+  const section = document.getElementById('resultSection');
+  section.style.display = 'block';
+  const errorList = Array.isArray(errors)
+    ? errors.map(e => `<li>${e}</li>`).join('')
+    : `<li>${errors}</li>`;
+  section.innerHTML = `
+    <div class="result-rejected">
+      <h3>⚠ Please Fix These Errors</h3>
+      <ul style="margin-top:8px;">${errorList}</ul>
+    </div>
+  `;
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ════════════════════════════════════════════════════
+// checkStatus — checks application status by phone
+// ════════════════════════════════════════════════════
+async function checkStatus() {
+  const phone = document.getElementById('statusPhone').value.trim();
+  if (!phone || phone.length !== 10) {
+    alert('Please enter a valid 10-digit mobile number');
+    return;
+  }
+
+  document.getElementById('statusSpinner').style.display = 'block';
+  document.getElementById('statusResult').innerHTML = '';
+
+  try {
+    const response = await fetch(`${STATUS_URL}?phone=${phone}`);
+    const data     = await response.json();
+    document.getElementById('statusSpinner').style.display = 'none';
+
+    if (!data.applications || data.applications.length === 0) {
+      document.getElementById('statusResult').innerHTML =
+        '<p style="color:#555;">No applications found for this number.</p>';
+      return;
+    }
+
+    // Group by scheme — show only latest per scheme
+    const latestByScheme = {};
+    data.applications.forEach(app => {
+      if (!latestByScheme[app.loan_scheme]) {
+        latestByScheme[app.loan_scheme] = app;
+      }
+    });
+
+    const DOC_LABELS = {
+      aadhaar: 'Aadhaar Card',
+      land_records: 'Land Records',
+      tenancy_agreement: 'Tenancy Agreement',
+      pan_card: 'PAN Card',
+      business_proof: 'Business Proof',
+      address_proof: 'Address Proof',
+      secc_letter: 'SECC 2011 Letter',
+      house_photo: 'House Photo',
+      ration_card: 'Ration Card',
+      crop_certificate: 'Crop Sowing Certificate',
+      bank_passbook: 'Bank Passbook',
+    };
+
+    const cards = Object.values(latestByScheme).map(app => {
+
+      const isApproved = app.status.includes('Approved') ||
+                         app.status.includes('Directed');
+      const isRejected = app.status.includes('Rejected') ||
+                         app.status.includes('Incomplete');
+      const isPending  = !isApproved && !isRejected;
+
+      const statusClass = isApproved ? 'status-approved'
+                        : isRejected ? 'status-rejected'
+                        : 'status-pending';
+
+      const date = new Date(app.submitted_at)
+        .toLocaleDateString('en-IN');
+
+      const docVerification = app.doc_verification || {};
+      const docFeedback     = app.doc_feedback     || {};
+      const docKeys         = Object.keys(docVerification);
+
+      // ── Document status section ──
+      let docStatusHtml = '';
+      if (docKeys.length > 0) {
+        const docItems = docKeys.map(key => {
+          const vStatus  = docVerification[key];
+          const icon     = vStatus === 'approved' ? '✅' : '❌';
+          const label    = DOC_LABELS[key] || key;
+          const feedback = docFeedback[key] || '';
+          const bgColor  = vStatus === 'approved' ? '#D8F0DF' : '#FADBD8';
+          return `
+            <div style="padding:8px 10px; margin-bottom:6px;
+                        background:${bgColor}; border-radius:6px;">
+              <b>${icon} ${label}</b>
+              ${feedback
+                ? `<br/><small style="color:#C0392B;">
+                     Issue: ${feedback}
+                   </small>`
+                : vStatus === 'approved'
+                  ? `<br/><small style="color:#1E7B34;">
+                       Verified and accepted
+                     </small>`
+                  : ''}
+            </div>`;
+        }).join('');
+        docStatusHtml = `
+          <div style="margin-top:12px;">
+            <b style="color:#1B3A6B; font-size:13px;">
+              📄 Document Verification Status:
+            </b>
+            <div style="margin-top:8px;">${docItems}</div>
+          </div>`;
+      }
+
+      // ── Banks shown only when approved ──
+      let banksHtml = '';
+      if (isApproved) {
+        const banks = (app.eligibility_result &&
+                       app.eligibility_result.banks) || [];
+        if (banks.length > 0) {
+          const bankRows = banks.map(b => `
+            <tr>
+              <td>${b.name}</td>
+              <td>${b.type}</td>
+              <td>${b.toll_free}</td>
+              <td>
+                <a href="${b.website}" target="_blank">Visit</a>
+              </td>
+            </tr>`).join('');
+          banksHtml = `
+            <div style="margin-top:14px;">
+              <b style="color:#1B3A6B;">🏦 Recommended Banks:</b>
+              <table style="margin-top:8px; font-size:13px;">
+                <thead>
+                  <tr>
+                    <th>Bank</th><th>Type</th>
+                    <th>Toll Free</th><th>Website</th>
+                  </tr>
+                </thead>
+                <tbody>${bankRows}</tbody>
+              </table>
+            </div>`;
+        }
+      }
+
+      // ── Direction letter info when approved ──
+      let directionHtml = '';
+      if (isApproved) {
+        const rate = app.eligibility_result
+          ? (app.eligibility_result.interest_rate
+              ? app.eligibility_result.interest_rate + '% per annum'
+              : app.eligibility_result.premium_rate
+                ? app.eligibility_result.premium_rate + '% premium'
+                : 'As per bank norms')
+          : 'As per bank norms';
+
+        const banks  = (app.eligibility_result &&
+                        app.eligibility_result.banks) || [];
+        const refNo  = 'REF-' +
+          app.applicationId.substring(0,8).toUpperCase();
+        const today  = new Date().toLocaleDateString('en-IN', {
+          day:'2-digit', month:'long', year:'numeric'
+        });
+
+        // Store letter data globally for print access
+        window._letterData = {
+          name:   app.applicant_name || phone,
+          phone:  app.phone || phone,
+          scheme: app.loan_scheme,
+          appId:  app.applicationId,
+          rate,
+          refNo,
+          date:   today,
+          banks,
+          remarks: app.remarks || ''
+        };
+
+        directionHtml = `
+          <div style="margin-top:12px; background:#D8F0DF;
+                      padding:14px; border-radius:6px;
+                      border-left:4px solid #1E7B34;">
+            <b style="color:#1E7B34; font-size:15px;">
+              ?? Application Verified & Approved!
+            </b>
+            <p style="font-size:13px; margin-top:8px; color:#1E7B34;">
+              Your documents have been verified by the agent.
+              A Direction Letter has been issued for you.
+            </p>
+            <p style="font-size:13px; margin-top:4px;">
+              <b>Indicative Rate:</b> ${rate}
+            </p>
+            <p style="font-size:13px; margin-top:4px;">
+              <b>Reference No:</b> ${refNo}
+            </p>
+            ${app.remarks
+              ? `<p style="font-size:13px; margin-top:4px;">
+                   <b>Agent Remarks:</b> ${app.remarks}
+                 </p>`
+              : ''}
+            <p style="font-size:13px; margin-top:8px; color:#555;">
+              ?? Take this Direction Letter to the bank along with
+              your original documents.
+            </p>
+            <button onclick="printFarmerDirectionLetter()"
+                    style="margin-top:12px; padding:12px 20px;
+                           background:#1B3A6B; color:white;
+                           border:none; border-radius:6px;
+                           cursor:pointer; font-size:14px;
+                           width:100%; font-weight:bold;">
+              ??? Print Direction Letter
+            </button>
+          </div>`;
+      }
+      // ── Rejection reason ──
+      let rejectionHtml = '';
+      if (isRejected) {
+        rejectionHtml = `
+          <div style="margin-top:12px; background:#FADBD8;
+                      padding:12px; border-radius:6px;
+                      border-left:4px solid #C0392B;">
+            <b style="color:#C0392B;">
+              ❌ Documents need correction
+            </b>
+            <p style="font-size:13px; margin-top:6px;">
+              Please correct the issues shown below and
+              re-submit your application.
+            </p>
+            ${app.remarks
+              ? `<p style="font-size:13px; margin-top:4px;">
+                   <b>Agent Remarks:</b> ${app.remarks}
+                 </p>`
+              : ''}
+          </div>`;
+      }
+
+      // ── Pending message ──
+      let pendingHtml = '';
+      if (isPending) {
+        pendingHtml = `
+          <div style="margin-top:10px; background:#FFF3CD;
+                      padding:10px; border-radius:6px;
+                      border-left:3px solid #B8860B;">
+            <p style="font-size:13px; color:#B8860B;">
+              ⏳ Your documents are under review by the
+              verification agent. You will see the result here
+              once verified.
+            </p>
+          </div>`;
+      }
+
+      return `
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between;
+                      align-items:center; flex-wrap:wrap;">
+            <div>
+              <b style="font-size:15px; color:#1B3A6B;">
+                ${app.loan_scheme}
+              </b><br/>
+              <small style="color:#888;">
+                Submitted: ${date}
+              </small>
+              <small style="display:block; color:#4c6177;">
+                State: ${app.state || 'Not assigned'}
+              </small>
+            </div>
+            <span class="${statusClass}"
+                  style="font-size:14px;">
+              ${app.status}
+            </span>
+          </div>
+          ${directionHtml}
+          ${rejectionHtml}
+          ${pendingHtml}
+          ${docStatusHtml}
+          ${banksHtml}
+          <p style="font-size:11px; color:#bbb; margin-top:10px;">
+            ID: ${app.applicationId.substring(0,8)}...
+          </p>
+        </div>`;
+    }).join('');
+
+    document.getElementById('statusResult').innerHTML = cards;
+
+  } catch (error) {
+    document.getElementById('statusSpinner').style.display = 'none';
+    document.getElementById('statusResult').innerHTML =
+      '<p style="color:red;">Error fetching status. Please try again.</p>';
+  }
+}
+
+function populateStateOptions() {
+  const stateSelect = document.getElementById('farmerState');
+  if (!stateSelect || !window.APP_STATES) return;
+
+  window.APP_STATES.forEach(state => {
+    const option = document.createElement('option');
+    option.value = state;
+    option.textContent = state;
+    stateSelect.appendChild(option);
+  });
+}
+
+function initializeFarmerPortal() {
+  populateStateOptions();
+
+  const headerTitle = document.querySelector('.header h1');
+  const headerText = document.querySelector('.header p');
+  if (headerTitle) headerTitle.textContent = 'Farmer Application';
+  if (headerText) {
+    headerText.textContent = 'Fill the form, upload documents, and track status.';
+  }
+}
+
+window.addEventListener('load', initializeFarmerPortal);
+
+</script>
+</body>
+</html>

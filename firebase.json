@@ -1,0 +1,48 @@
+{
+  "functions": {
+    "source": "functions",
+    "runtime": "python312"
+  },
+  "hosting": {
+    "public": "frontend",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/submit_loan",
+        "function": {
+          "functionId": "submit_loan",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/api/check_status",
+        "function": {
+          "functionId": "check_status",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/api/get_applications",
+        "function": {
+          "functionId": "get_applications",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/api/update_status",
+        "function": {
+          "functionId": "update_status",
+          "region": "us-central1"
+        }
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

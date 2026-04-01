@@ -238,8 +238,6 @@ def check_status(req: https_fn.Request) -> https_fn.Response:
         # ── Query Firestore by phone ──────────────────
         docs = db.collection(COLLECTION_NAME)\
                  .where('phone', '==', str(phone))\
-                 .order_by('submitted_at',
-                           direction=firestore.Query.DESCENDING)\
                  .stream()
 
         applications = []
@@ -259,6 +257,11 @@ def check_status(req: https_fn.Request) -> https_fn.Response:
                 'doc_verification':   data.get('doc_verification', {}),
                 'doc_feedback':       data.get('doc_feedback', {}),
             })
+
+        applications.sort(
+            key=lambda app: app.get('submitted_at', ''),
+            reverse=True
+        )
 
         return cors_response({
             'success': True,

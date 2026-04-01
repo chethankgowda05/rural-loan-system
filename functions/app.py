@@ -185,7 +185,6 @@ def check_status():
         docs = (
             db.collection(COLLECTION_NAME)
             .where("phone", "==", str(phone))
-            .order_by("submitted_at", direction=firestore.Query.DESCENDING)
             .stream()
         )
 
@@ -206,6 +205,8 @@ def check_status():
                 "doc_verification": data.get("doc_verification", {}),
                 "doc_feedback": data.get("doc_feedback", {}),
             })
+
+        applications.sort(key=lambda item: item.get("submitted_at", ""), reverse=True)
 
         return jsonify({
             "success": True,

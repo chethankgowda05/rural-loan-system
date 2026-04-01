@@ -1,77 +1,102 @@
 # Rural Loan Eligibility Checker
 
-A Firebase-based rural loan screening portal with separate flows for farmers and state agents.
+Rural loan application portal with:
 
-## What It Does
+- Firebase Hosting for frontend
+- Firestore for database
+- Render for Python backend
+- Cloudinary for document storage
 
-- Farmers can submit loan applications, upload documents, select their state, and track status.
-- State agents can log in by state, review only routed applications for that state, verify documents, and update application status.
-- Firestore stores applications, document review state, remarks, and eligibility results.
-
-## Project Structure
+## Current Architecture
 
 - `frontend/index.html`
-  Landing page for role selection.
+  Role-based landing page
 - `frontend/farmer.html`
-  Farmer application and status tracking page.
+  Farmer application and status tracking
 - `frontend/dashboard.html`
-  State agent login and review dashboard.
-- `frontend/style.css`
-  Shared UI styling.
+  State agent review dashboard
 - `frontend/app-config.js`
-  State list and agent credentials.
+  State list, agent credentials, and deployed backend base URL
+- `functions/app.py`
+  Render-ready Flask backend
 - `functions/main.py`
-  Firebase HTTP functions for submit, status, dashboard fetch, and updates.
-- `functions/validator.py`
-  Input validation rules.
+  Previous Firebase Functions version kept in repo for reference
 - `firebase.json`
-  Hosting, Functions, Firestore, and Hosting rewrite configuration.
+  Firebase Hosting + Firestore deployment config
+- `render.yaml`
+  Render service definition
 
-## Firebase Endpoints
+## Backend Routes
 
-The frontend is configured to work in both environments:
+The Render backend exposes:
 
-- Local emulator:
-  Uses `http://localhost:5001/...`
-- Deployed site:
-  Uses Hosting rewrites:
-  - `/api/submit_loan`
-  - `/api/check_status`
-  - `/api/get_applications`
-  - `/api/update_status`
+- `/submit_loan`
+- `/check_status`
+- `/get_applications`
+- `/update_status`
 
 ## Local Development
 
-1. Start the Firebase emulators.
-2. Open the frontend through Firebase Hosting emulator.
-3. Test farmer submission, status tracking, and agent dashboard review flow.
+Local frontend pages still use the Firebase emulator-style localhost API URLs.
 
-## Deployment
+## Render Deployment
 
-This project is configured for Firebase project:
+Create a new Render Web Service from this repo.
 
-- `rural-loan-system`
+Recommended settings:
 
-Recommended deploy command:
+- Runtime: `Python`
+- Root directory: `functions`
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
+
+You can also use the included [render.yaml](c:/Users/manoj/rural-loan-system/render.yaml).
+
+### Render Environment Variables
+
+Add these in Render:
+
+- `COLLECTION_NAME=applications`
+- `FIREBASE_SERVICE_ACCOUNT_JSON=<your Firebase service account JSON as one line>`
+
+The backend uses `FIREBASE_SERVICE_ACCOUNT_JSON` to connect securely to Firestore from Render.
+
+## Firebase Hosting Deployment
+
+This repo is now configured so Firebase deploys only:
+
+- Hosting
+- Firestore rules
+- Firestore indexes
+
+Deploy command:
 
 ```powershell
+cd c:\Users\manoj\rural-loan-system
 $env:XDG_CONFIG_HOME='c:\Users\manoj\rural-loan-system\.firebase-config'
 cmd /c firebase deploy --project rural-loan-system
 ```
 
-## Current Deploy Note
+## Frontend Configuration After Render Deploy
 
-Deployment requires Firebase authentication on the machine running the command. If not already logged in, run:
+After Render gives you the live backend URL, update this line in [app-config.js](c:/Users/manoj/rural-loan-system/frontend/app-config.js):
 
-```powershell
-$env:XDG_CONFIG_HOME='c:\Users\manoj\rural-loan-system\.firebase-config'
-cmd /c firebase login
+```javascript
+window.APP_API_BASE_URL = 'https://your-render-service.onrender.com';
 ```
 
-Then deploy again.
+Replace it with your actual Render backend URL, for example:
 
-## Notes
+```javascript
+window.APP_API_BASE_URL = 'https://rural-loan-system-api.onrender.com';
+```
 
-- Agent credentials are currently stored in frontend config for simplicity.
-- For production security, agent authentication should move to the backend.
-- Cloudinary is used for document uploads from the frontend.
+Then redeploy Firebase Hosting.
+
+## Cloudinary
+
+Cloudinary upload remains in the frontend and does not need architectural changes for this setup.
+
+## Important Note
+
+Agent credentials are still stored in frontend config for simplicity. For stronger production security, agent authentication should eventually move to the backend.

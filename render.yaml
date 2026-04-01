@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rural-loan-system-api
+    runtime: python
+    rootDir: functions
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
+    envVars:
+      - key: COLLECTION_NAME
+        value: applications
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false

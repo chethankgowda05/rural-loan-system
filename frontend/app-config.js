@@ -29,7 +29,7 @@ window.APP_STATES = [
   'West Bengal'
 ];
 
-window.APP_API_BASE_URL = 'https://your-render-service.onrender.com';
+window.APP_API_BASE_URL = 'https://rural-loan-system-api.onrender.com';
 
 window.AGENT_CREDENTIALS = {
   'Andhra Pradesh': 'ap@agent2026',
